@@ -1,0 +1,47 @@
+一般习惯于将项目有关的脚本统一放在项目根目录的 scripts 包中，当然这只是一个惯例，你也可以采用自己觉得合理的目录结构，只要保证这个包所在目录能够被 Python 找到。
+
+依据惯例，我们博客项目中脚本的目录结构如下：
+
+HelloDjango-blog-tutorial\
+    blog\
+    blogproject\
+    ...
+    scripts\
+        __init__.py
+        fake.py
+
+        md.sample
+
+其中 fake.py 是生成测试数据的脚本，md.sample 是一个纯文本文件，内容是用于测试 Markdown 的文本。
+使用 Faker 快速生成测试数据
+
+博客文章包含丰富的内容元素，例如标题、正文、分类、标签。如果手工输入这些相关元素的文本会非常耗时，我们将借助一个 Python 的第三方库 Faker 来快速生成这些测试用的文本内容。Faker 意为造假工厂，顾名即可思义。
+
+首先安装 Faker：
+
+$ pipenv install Faker
+
+Faker 通过不同的 Provider 来提供各种不同类型的假数据，我们将在下面的脚本中讲解它的部分用法，完整的用法可以参考其官方文档。
+批量生成测试数据
+
+现在我们来编写一段 Python 脚本用于自动生成博客测试数据。思路非常简单，博客内容包括作者、分类、标签、文章等元素，只需依次生成这些元素的内容即可。当然为了使脚本能够正常运行，很多细节需要注意，我们会对需要注意的地方进行详细讲解。
+
+先来看脚本 fake.py 开头的内容：
+
+import os
+import pathlib
+import random
+import sys
+from datetime import timedelta
+
+import django
+import faker
+from django.utils import timezone
+
+# 将项目根目录添加到 Python 的模块搜索路径中
+back = os.path.dirname
+BASE_DIR = back(back(os.path.abspath(__file__)))
+
+sys.path.append(BASE_DIR)
+
+这一段很简单，只是导入一些会用到的模块，然后通过脚本所在文件找到项目根目录，将根目录添加到 Python 的模块搜索路径中，这样在运行脚本时 Python 才能够找到相应的模块并执行。
